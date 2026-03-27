@@ -1,0 +1,11 @@
+.. News Capstone documentation master file, created by
+   sphinx-quickstart.
+
+News Capstone documentation
+===========================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   news_app
