@@ -1,3 +1,4 @@
+"""Database models for articles, users, and newsletters."""
 from __future__ import annotations
 
 from django.conf import settings
@@ -10,6 +11,7 @@ from .managers import UserManager
 
 
 class Publisher(models.Model):
+    """Represents a news publisher."""
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     editors = models.ManyToManyField(
@@ -32,6 +34,7 @@ class Publisher(models.Model):
 
 
 class User(AbstractUser):
+    """Custom user model with roles and subscriptions."""
     ROLE_READER = 'reader'
     ROLE_EDITOR = 'editor'
     ROLE_JOURNALIST = 'journalist'
@@ -89,6 +92,7 @@ class User(AbstractUser):
 
 
 class Article(models.Model):
+    """Represents a news article written by a journalist."""
     title = models.CharField(max_length=255)
     content = models.TextField()
     author = models.ForeignKey(
@@ -130,6 +134,7 @@ class Article(models.Model):
 
 
 class Newsletter(models.Model):
+    """Represents a collection of articles."""
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -158,6 +163,7 @@ class Newsletter(models.Model):
 
 
 class ApprovedArticleLog(models.Model):
+    """Logs approved articles for auditing purposes."""
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='approval_logs')
     payload = models.JSONField(default=dict)
     received_at = models.DateTimeField(auto_now_add=True)
@@ -170,6 +176,7 @@ class ApprovedArticleLog(models.Model):
 
 
 def assign_group_permissions():
+    """Assign permissions to user groups."""
     group_permissions = {
         'Reader': [
             'view_article',
