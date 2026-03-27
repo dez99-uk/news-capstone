@@ -1,3 +1,5 @@
+"""Views for handling user requests and rendering pages in the news application."""
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
