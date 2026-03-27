@@ -1,0 +1,13 @@
+{% extends 'news_app/base.html' %}
+{% block content %}
+<section class="card">
+    <h2>Approve Article</h2>
+    <p><strong>{{ object.title }}</strong> by {{ object.author.username }}</p>
+    <p>{{ object.content|truncatewords:60 }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Approve article</button>
+    </form>
+</section>
+{% endblock %}

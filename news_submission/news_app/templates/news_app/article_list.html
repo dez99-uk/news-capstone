@@ -1,0 +1,14 @@
+{% extends 'news_app/base.html' %}
+{% block content %}
+<h2>Approved Articles</h2>
+{% for article in articles %}
+<article class="card">
+    <h3><a href="/articles/{{ article.id }}/">{{ article.title }}</a></h3>
+    <p><strong>Author:</strong> {{ article.author.username }}</p>
+    <p><strong>Publisher:</strong> {{ article.publisher|default:'Independent' }}</p>
+    <p>{{ article.content|truncatewords:35 }}</p>
+</article>
+{% empty %}
+<p>No approved articles are available yet.</p>
+{% endfor %}
+{% endblock %}

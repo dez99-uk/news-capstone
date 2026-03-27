@@ -1,0 +1,15 @@
+{% extends 'news_app/base.html' %}
+{% block content %}
+<h2>Editor Review Queue</h2>
+{% for article in articles %}
+<section class="card">
+    <h3>{{ article.title }}</h3>
+    <p><strong>Journalist:</strong> {{ article.author.username }}</p>
+    <p><strong>Publisher:</strong> {{ article.publisher|default:'Independent' }}</p>
+    <p>{{ article.content|truncatewords:40 }}</p>
+    <a class="button-link" href="/review/{{ article.id }}/approve/">Open approval form</a>
+</section>
+{% empty %}
+<p>No unapproved articles are waiting for review.</p>
+{% endfor %}
+{% endblock %}

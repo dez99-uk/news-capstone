@@ -1,0 +1,10 @@
+{% extends 'news_app/base.html' %}
+{% block content %}
+<article class="card">
+    <h2>{{ article.title }}</h2>
+    <p><strong>Author:</strong> {{ article.author.username }}</p>
+    <p><strong>Publisher:</strong> {{ article.publisher|default:'Independent' }}</p>
+    <p><strong>Approved:</strong> {{ article.approved }}</p>
+    <div class="article-body">{{ article.content|linebreaks }}</div>
+</article>
+{% endblock %}

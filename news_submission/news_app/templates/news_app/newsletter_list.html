@@ -1,0 +1,14 @@
+{% extends 'news_app/base.html' %}
+{% block content %}
+<h2>Newsletters</h2>
+{% for newsletter in newsletters %}
+<section class="card">
+    <h3>{{ newsletter.title }}</h3>
+    <p>{{ newsletter.description }}</p>
+    <p><strong>Author:</strong> {{ newsletter.author.username }}</p>
+    <p><strong>Articles included:</strong> {{ newsletter.articles.count }}</p>
+</section>
+{% empty %}
+<p>No newsletters available.</p>
+{% endfor %}
+{% endblock %}

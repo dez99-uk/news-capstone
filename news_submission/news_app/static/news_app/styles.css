@@ -1,0 +1,11 @@
+body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color: #222; }
+header { background: #14213d; color: #fff; padding: 1rem 2rem; }
+nav { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+nav a { color: #fff; text-decoration: none; }
+main { max-width: 920px; margin: 2rem auto; padding: 0 1rem; }
+.card { background: #fff; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.narrow { max-width: 420px; }
+button, .button-link { background: #1d4ed8; color: #fff; border: 0; padding: 0.7rem 1rem; border-radius: 8px; text-decoration: none; display: inline-block; }
+.badge { background: #fca311; color: #111; padding: 0.2rem 0.6rem; border-radius: 999px; }
+.message { background: #dcfce7; border: 1px solid #86efac; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; }
+.article-body p { line-height: 1.6; }
