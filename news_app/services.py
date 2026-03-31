@@ -1,3 +1,4 @@
+"""Service layer logic for handling business processes in the news application."""
 from __future__ import annotations
 
 import logging
