@@ -1,7 +1,8 @@
-news_app
-========
+Project modules
+===============
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    news_app
+   news_project

@@ -1,11 +1,11 @@
-.. News Capstone documentation master file, created by
-   sphinx-quickstart.
+News Capstone Project Documentation
+===================================
 
-News Capstone documentation
-===========================
+This documentation describes the structure and behaviour of the Django-based
+news application submitted for the capstone task.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   news_app
+   modules

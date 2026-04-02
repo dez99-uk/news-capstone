@@ -1,5 +1,5 @@
-News Capstone Project documentation
-==================================
+News Capstone Project Documentation
+===================================
 
 This documentation describes the structure and behaviour of the Django-based
 news application submitted for the capstone task.
