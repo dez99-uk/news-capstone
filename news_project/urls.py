@@ -1,3 +1,9 @@
+"""Top-level URL configuration for the news project.
+
+This module combines admin, authentication, API, and application routes into a
+single root URL configuration.
+"""
+
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path

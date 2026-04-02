@@ -1,3 +1,5 @@
+"""URL routes for the REST API portion of the news application."""
+
 from django.urls import path
 
 from .api_views import (

@@ -1,4 +1,10 @@
-"""Service layer logic for handling business processes in the news application."""
+"""Service-layer utilities for notifications and integration tasks.
+
+This module groups logic that should not live directly inside models or views,
+such as selecting article subscribers, sending emails, and posting internal
+approval events to another endpoint.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -16,6 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 def get_article_subscribers(article: Article):
+    """Return readers who should be notified about an approved article.
+
+    Readers are included if they subscribe to the article's publisher, the
+    article's author, or both.
+
+    Args:
+        article (Article): The approved article whose audience is being resolved.
+
+    Returns:
+        QuerySet[User]: A distinct queryset of reader accounts to notify.
+    """
     readers = User.objects.filter(role=User.ROLE_READER)
     if article.publisher_id:
         readers = readers.filter(subscribed_publishers=article.publisher)
@@ -24,6 +41,22 @@ def get_article_subscribers(article: Article):
 
 
 def notify_subscribers_and_log(article: Article) -> None:
+    """Send subscriber notifications and create an internal approval log entry.
+
+    The function first emails subscribed readers when recipient addresses are
+    available. It then posts a JSON payload to the internal approved-article
+    endpoint so that the event is recorded centrally.
+
+    Args:
+        article (Article): The article that has just been approved.
+
+    Returns:
+        None: The function performs side effects only.
+
+    Raises:
+        django.core.mail.BadHeaderError: May be raised by Django's mail
+            utilities if invalid headers are generated.
+    """
     subscribers = get_article_subscribers(article)
     recipient_list = [user.email for user in subscribers if user.email]
     if recipient_list:

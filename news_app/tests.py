@@ -1,3 +1,10 @@
+"""Automated tests for the news application.
+
+The tests in this module verify the main API and approval workflows, including
+authentication, role-based permissions, notification side effects, and
+internal approval logging.
+"""
+
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -11,7 +18,14 @@ from .models import ApprovedArticleLog, Article, Newsletter, Publisher, assign_g
 
 
 class BaseNewsTestCase(APITestCase):
+    """Provide shared test fixtures used across API and signal tests."""
+
     def setUp(self):
+        """Create a complete baseline dataset for downstream tests.
+
+        Returns:
+            None: Test fixtures are created as a side effect.
+        """
         self.User = get_user_model()
         assign_group_permissions()
 
@@ -75,7 +89,10 @@ class BaseNewsTestCase(APITestCase):
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', INTERNAL_API_BASE_URL='http://testserver', INTERNAL_API_KEY='test-key')
 class NewsApiTests(BaseNewsTestCase):
+    """Test the REST API behaviour for different user roles."""
+
     def test_reader_only_gets_subscribed_articles(self):
+        """Ensure readers only receive approved articles matching subscriptions."""
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.reader_token.key}')
         response = self.client.get(reverse('news_app_api:subscribed_articles'))
         self.assertEqual(response.status_code, 200)
@@ -83,6 +100,7 @@ class NewsApiTests(BaseNewsTestCase):
         self.assertEqual(response.json()[0]['title'], 'Approved story')
 
     def test_reader_cannot_create_article(self):
+        """Ensure readers are blocked from article creation endpoints."""
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.reader_token.key}')
         response = self.client.post(reverse('news_app_api:article_list_create'), {
             'title': 'Blocked article',
@@ -92,6 +110,7 @@ class NewsApiTests(BaseNewsTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_journalist_can_create_article(self):
+        """Ensure journalists can create a new unapproved article."""
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.journalist_token.key}')
         response = self.client.post(reverse('news_app_api:article_list_create'), {
             'title': 'Fresh article',
@@ -104,6 +123,7 @@ class NewsApiTests(BaseNewsTestCase):
 
     @patch('news_app.signals.notify_subscribers_and_log')
     def test_editor_can_approve_and_delete_article(self, mock_notify):
+        """Ensure editors can approve and then delete an article."""
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.editor_token.key}')
         approve_response = self.client.post(
             reverse('news_app_api:article_approve', kwargs={'pk': self.pending_article.id})
@@ -118,10 +138,12 @@ class NewsApiTests(BaseNewsTestCase):
         mock_notify.assert_called_once()
 
     def test_subscribed_endpoint_requires_authentication(self):
+        """Ensure the subscribed-articles endpoint rejects anonymous requests."""
         response = self.client.get(reverse('news_app_api:subscribed_articles'))
         self.assertEqual(response.status_code, 401)
 
     def test_newsletter_list_and_journalist_create(self):
+        """Ensure readers can list newsletters and journalists can create them."""
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.reader_token.key}')
         list_response = self.client.get(reverse('news_app_api:newsletter_list_create'))
         self.assertEqual(list_response.status_code, 200)
@@ -144,7 +166,10 @@ class NewsApiTests(BaseNewsTestCase):
     INTERNAL_API_KEY='test-key',
 )
 class ApprovalSignalTests(TestCase):
+    """Test signal-driven behaviour triggered by article approval."""
+
     def setUp(self):
+        """Create the fixtures required to test approval side effects."""
         self.User = get_user_model()
         assign_group_permissions()
         self.editor = self.User.objects.create_user(
@@ -173,6 +198,7 @@ class ApprovalSignalTests(TestCase):
 
     @patch('news_app.services.requests.post')
     def test_signal_sends_email_and_posts_internal_log(self, mock_post):
+        """Ensure article approval sends email and writes an internal log."""
         article = Article.objects.create(
             title='Signal story',
             content='Signal body.',
@@ -190,6 +216,7 @@ class ApprovalSignalTests(TestCase):
         mock_post.assert_called_once()
 
     def test_internal_approved_log_endpoint_rejects_bad_key(self):
+        """Ensure the internal approval log endpoint rejects invalid API keys."""
         response = self.client.post(
             reverse('news_app_api:approved_article_log'),
             data={'article': 999, 'payload': {'title': 'Bad'}},

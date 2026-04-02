@@ -1,3 +1,12 @@
+"""Django settings for the news capstone project.
+
+This module defines installed apps, middleware, templates, authentication,
+database configuration, email settings, and API defaults for the application.
+
+The project uses MariaDB/MySQL by default and supports SQLite as an optional
+fallback when configured through environment variables.
+"""
+
 from __future__ import annotations
 
 import os

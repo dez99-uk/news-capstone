@@ -1,3 +1,9 @@
+"""URL routes for the HTML interface of the news application.
+
+The URL configuration in this module connects browser-facing routes to the
+class-based and function-based views defined in `news_app.views`.
+"""
+
 from django.urls import path
 
 from .views import (
