@@ -13,11 +13,13 @@ from .views import (
     ArticleReviewListView,
     HomeView,
     NewsletterListView,
+    RegisterView,
     approve_article_quick,
 )
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
+    path('register/', RegisterView.as_view(), name='register'),
     path('articles/', ApprovedArticleListView.as_view(), name='article_list'),
     path('articles/<int:pk>/', ArticleDetailView.as_view(), name='article_detail'),
     path('newsletters/', NewsletterListView.as_view(), name='newsletter_list'),

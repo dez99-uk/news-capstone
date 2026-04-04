@@ -5,19 +5,48 @@ provide list, detail, review, and approval screens for the article and
 newsletter workflows used by readers, journalists, and editors.
 """
 
+from django.contrib.auth import login
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
-from .forms import ArticleApprovalForm
+from .forms import ArticleApprovalForm, UserRegistrationForm
 from .models import Article, Newsletter, User
 
 
 class HomeView(TemplateView):
     """Render the landing page for the application."""
-
     template_name = 'news_app/home.html'
+
+
+class RegisterView(CreateView):
+    """Display and process the user registration form.
+
+    This view allows a new user to create an account and then log in to access
+    the role-based features of the application. After successful registration,
+    the user is logged in automatically and redirected to the homepage.
+    """
+
+    form_class = UserRegistrationForm
+    template_name = 'news_app/register.html'
+    success_url = reverse_lazy('news_app:home')
+
+    def form_valid(self, form):
+        """Save the user account and log the new user in.
+
+        Args:
+            form (UserRegistrationForm): The validated registration form.
+
+        Returns:
+            HttpResponse: Redirect response after successful registration.
+        """
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
 
 
 class ApprovedArticleListView(LoginRequiredMixin, ListView):
@@ -84,11 +113,7 @@ class EditorRequiredMixin(UserPassesTestMixin):
     """Require the current user to be an authenticated editor."""
 
     def test_func(self):
-        """Return `True` only when the current user has the editor role.
-
-        Returns:
-            bool: Whether the request is made by an authenticated editor.
-        """
+        """Return True only when the current user has the editor role."""
         return self.request.user.is_authenticated and self.request.user.role == User.ROLE_EDITOR
 
 
@@ -100,11 +125,7 @@ class ArticleReviewListView(LoginRequiredMixin, EditorRequiredMixin, ListView):
     context_object_name = 'articles'
 
     def get_queryset(self):
-        """Return pending articles for the editor review screen.
-
-        Returns:
-            QuerySet[Article]: Articles that have not yet been approved.
-        """
+        """Return pending articles for the editor review screen."""
         return Article.objects.filter(approved=False).select_related('author', 'publisher')
 
 
@@ -116,45 +137,23 @@ class ArticleApproveView(LoginRequiredMixin, EditorRequiredMixin, UpdateView):
     template_name = 'news_app/article_approve.html'
 
     def form_valid(self, form):
-        """Mark the article as approved before saving the form.
-
-        Args:
-            form (ArticleApprovalForm): The validated approval form.
-
-        Returns:
-            HttpResponse: The response returned by the parent update view.
-        """
+        """Mark the article as approved before saving the form."""
         form.instance.approved = True
         messages.success(self.request, 'Article approved successfully.')
         return super().form_valid(form)
 
     def get_success_url(self):
-        """Return the redirect target after a successful approval action.
-
-        Returns:
-            str: A `next` URL when supplied, otherwise the review list URL.
-        """
+        """Return the redirect target after a successful approval action."""
         return self.request.GET.get('next') or '/review/'
 
 
 def approve_article_quick(request, pk):
-    """Approve an article immediately without rendering the update form.
+    """Approve an article immediately without rendering the update form."""
 
-    This shortcut supports a faster editor workflow from the review list page.
-
-    Args:
-        request: Django HTTP request object.
-        pk (int): Primary key of the article to approve.
-
-    Returns:
-        HttpResponseRedirect: Redirect to the review list or home page.
-
-    Raises:
-        Http404: Raised if the supplied article does not exist.
-    """
     if not request.user.is_authenticated or request.user.role != User.ROLE_EDITOR:
         messages.error(request, 'Only editors can approve articles.')
         return redirect('news_app:home')
+
     article = get_object_or_404(Article, pk=pk)
     article.approved = True
     article.save()

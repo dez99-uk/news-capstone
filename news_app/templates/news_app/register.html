@@ -1,0 +1,13 @@
+{% extends 'news_app/base.html' %}
+{% block content %}
+<section class="card narrow">
+    <h2>Register</h2>
+    <p>Create an account to access the news application.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create account</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}">Login here</a>.</p>
+</section>
+{% endblock %}
